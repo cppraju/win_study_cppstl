@@ -1,0 +1,91 @@
+/*
+Using Type Traits and Constexpr If (C++17): We can apply constexpr if (available since C++17) along with type traits 
+to check the container type at compile-time. Since STL containers take multiple template parameters, we’ll use a 
+parameter pack. Here’s an example:
+*/
+
+#include <iostream>
+#include <vector>
+#include <map>
+#include <list>
+#include <type_traits>
+
+template <template <typename...> class Container, class... T>
+void func(const Container<T...>& container) {
+    if constexpr (std::is_same_v<Container<T...>, std::map<T...>>) {
+        // Handle std::map
+        std::cout << "Handling std::map" << std::endl;
+    } else if constexpr (std::is_same_v<Container<T...>, std::vector<T...>>) {
+        // Handle std::vector
+        std::cout << "Handling std::vector" << std::endl;
+    } else if constexpr (std::is_same_v<Container<T...>, std::list<T...>>) {
+        // Handle std::list
+        std::cout << "Handling std::list" << std::endl;
+    } else {
+        // Handle other containers
+        std::cout << "Handling other container" << std::endl;
+    }
+}
+
+int main() {
+    std::vector<int> v1;
+    func(v1); // ok
+
+    std::vector<double> v2;
+    func(v2); // ok
+
+    std::map<int, double> m1;
+    func(m1); // ok
+
+    std::list<int> l1;
+    func(l1); // ok
+}
+//=================================================================
+#include <list> // std::list
+#include <vector> // std::vector
+#include <iostream> // std::cout, std::endl
+
+using namespace std;
+
+/**
+ * Convert any STL-like container to a std::vector.
+ */
+template<template<typename, typename> typename Container, typename T, typename Allocator>
+std::vector ToVector(const Container<T, Allocator>& args) {
+    std::vector ret;
+    ret.reserve(args.size());
+    for(const T& arg : args) {
+        ret.push_back(arg);
+    }
+    return ret;
+}
+
+int main() {
+    // Create list
+    list myList;
+    myList.push_back(2);
+    myList.push_back(3);
+    myList.push_back(5);
+    // Convert to vector
+    vector myVector = ToVector(myList);
+    // Print vector - should print 2, 3 & 5
+    for(int val : myVector) {
+        cout << val << endl;
+    }
+}
+//===============================================================
+You can apply Constexpr If (since C++17) (with std::is_same) to check the type at compile-time, and apply parameter pack (since C++11) because these containers take multiple template parameters. e.g.
+
+template <template <typename...> class Container, class... T>
+void func(const Container<T...>& container) {
+    if constexpr (std::is_same_v<Container<T...>, std::map<T...>>) {
+        ...
+    } else if constexpr (std::is_same_v<Container<T...>, std::vector<T...>>) {
+        ...
+    } else if constexpr (std::is_same_v<Container<T...>, std::list<T...>>) {
+        ...
+    } else {
+        ...
+    }
+}
+PS: It depends on your intent but changing the parameter to pass-by-reference-to-const to avoid unnecessary copy might be a good idea.

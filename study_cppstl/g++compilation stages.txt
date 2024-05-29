@@ -1,0 +1,26 @@
+The g++ command is a GNU C++ compiler invocation command that performs several stages of compilation to generate an executable file. Let’s break down the compilation process:
+
+Preprocessing (I1): The -E option preprocesses the source code and generates an intermediate file (usually with a .i extension). For example:
+g++ -E main.cpp -o main.i
+
+Compilation (S1): The -S option compiles the preprocessed file into assembly code (.s file). For example:
+g++ -S main.i -o main.s
+
+Compilation with Debug Info (S2): To compile with debug information, use the -ggdb -g3 options. This generates an assembly file with debug symbols:
+g++ -S main.i -o main.debug.s -ggdb -g3
+
+Assembling (O1): The .s file is assembled into an object file (.o). For example:
+as main.s -o main.as.o
+
+Assembling with Debug Info (O2): Similarly, assemble the debug assembly file:
+as main.debug.s -o main.as.debug.o
+
+Linking (G1): Finally, link the object files to create the executable (default name: a.out):
+g++ -c main.cpp -o main.gcc.o
+
+Linking with Debug Info (G2): To include debug info in the executable:
+g++ -c main.cpp -o main.gcc.debug.o -ggdb -g3
+
+Remember that the .cpp extension is commonly used for C++ files, but .c++ is equivalent. Feel free to replace main.cpp with your actual source file name. 🚀
+
+cl /EP <filename.cpp> => gives preprocessor output to STDOUT

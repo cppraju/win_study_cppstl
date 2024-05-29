@@ -1,0 +1,33 @@
+What is Reference Collapsing?
+Reference collapsing occurs when references to references are combined or manipulated.
+It is a fundamental aspect of C++ type system, especially when dealing with templates and type deduction.
+Two Reference-Collapsing Rules:
+There are only two reference-collapsing rules:
+An rvalue reference to an rvalue reference becomes (“collapses into”) an rvalue reference.
+All other references to references (i.e., all combinations involving an lvalue reference) collapse into an lvalue reference.
+Universal References (Forwarding References):
+The most common use case for reference collapsing is with universal references (also known as forwarding references).
+Universal references are declared using T&& in template functions.
+They can bind to both lvalues and rvalues, preserving the original value category.
+Examples:
+Consider the following examples
+// Example 1: Universal reference
+template <typename T>
+void foo(T&& arg) {
+    // Inside foo, arg is always an lvalue
+    // Use std::forward to preserve value category
+}
+
+// Example 2: Reference collapsing
+int i = 42;
+int& lvalueRef = i; // lvalue reference
+int&& rvalueRef = 123; // rvalue reference
+
+// Combining references:
+int&& ref1 = lvalueRef; // lvalueRef is an lvalue, so ref1 is an lvalue reference
+auto&& ref2 = rvalueRef; // rvalueRef is an rvalue, so ref2 is an rvalue reference
+
+Summary:
+Reference collapsing is essential for understanding how references behave in various contexts.
+Universal references allow us to write generic code that works seamlessly with both lvalues and rvalues.
+Remember that mastering reference collapsing is crucial for writing efficient and flexible C++ code

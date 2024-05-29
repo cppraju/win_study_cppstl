@@ -1,0 +1,44 @@
+#include <sstream>
+#include <string>
+
+struct MyStruct {
+    int a;
+    float b;
+    std::string c;
+};
+
+std::ostream& operator<<(std::ostream& os, const MyStruct& ms) {
+    os << "a: " << ms.a << ", b: " << ms.b << ", c: " << ms.c;
+    return os;
+}
+
+int main() {
+    MyStruct ms = {1, 2.0f, "three"};
+    std::stringstream ss;
+    ss << ms;
+    std::cout << ss.str() << std::endl;
+    return 0;
+}
+
+#include <sstream>
+#include <string>
+
+struct MyStruct {
+    int a;
+    float b;
+    std::string c;
+};
+
+std::istream& operator>>(std::istream& is, MyStruct& ms) {
+    is >> ms.a >> ms.b >> ms.c;
+    return is;
+}
+
+int main() {
+    std::string s = "1 2.0 three";
+    std::istringstream iss(s);
+    MyStruct ms;
+    iss >> ms;
+    std::cout << "a: " << ms.a << ", b: " << ms.b << ", c: " << ms.c << std::endl;
+    return 0;
+}

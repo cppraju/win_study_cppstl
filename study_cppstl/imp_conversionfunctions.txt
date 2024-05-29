@@ -1,0 +1,13 @@
+int to string				- itoa(), sprintf(), std::ToString(), std::stringstream
+double to string			- gcvt_s(), sprintf(), std::ToString(), std::stringstream
+
+string to int				- atoi(), wtoi(), strtol(), strtoul(), wcstol()
+string to float				- atof(), strtof(), wcstof(), strtold(), strtod(), wcstod()
+
+multibyte to wide str		- mbstowcs_s()			//win
+wide str to multibyte		- wcstombs_s()			//win
+
+multibyte to wide char		- mbrtowc()
+wide char to multibyte		- wcrtomb()
+multibyte string to wide	- mbsrtowcs()
+wide string to multibyte	- wcsrtombs()

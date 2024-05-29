@@ -1,0 +1,89 @@
+//process 1
+#include <windows.h>
+
+int main() {
+    HANDLE map_file = OpenFileMapping(FILE_MAP_READ, FALSE, TEXT("mem1"));
+    if (map_file == NULL) {
+        std::cout << "(Child) File mapping is null\n";
+        return 1;
+    }
+
+    char* map_ptr = (char*)MapViewOfFile(map_file, FILE_MAP_READ, 0, 0, 0);
+    if (map_ptr == NULL) {
+        std::cout << "(Child) PTR is null\n";
+    }
+
+    HANDLE hMutex = OpenMutex(SYNCHRONIZE, TRUE, _T("mt"));
+
+    for (int i = 1; i <= 200; i++) {
+        WaitForSingleObject(hMutex, INFINITE);
+        // Read data from shared memory
+        ReleaseMutex(hMutex);
+    }
+
+    return 0;
+}
+//process 2
+#include <windows.h>
+
+int main() {
+    HANDLE map_file = OpenFileMapping(FILE_MAP_READ, FALSE, TEXT("mem1"));
+    if (map_file == NULL) {
+        std::cout << "(Child) File mapping is null\n";
+        return 1;
+    }
+
+    char* map_ptr = (char*)MapViewOfFile(map_file, FILE_MAP_READ, 0, 0, 0);
+    if (map_ptr == NULL) {
+        std::cout << "(Child) PTR is null\n";
+    }
+
+    HANDLE hMutex = OpenMutex(SYNCHRONIZE, TRUE, _T("mt"));
+
+    for (int i = 1; i <= 200; i++) {
+        WaitForSingleObject(hMutex, INFINITE);
+        // Read data from shared memory
+        ReleaseMutex(hMutex);
+    }
+
+    return 0;
+}
+//for unix
+#include <fcntl.h>
+#include <semaphore.h>
+#include <iostream>
+
+int main() {
+    sem_t* mySemaphore = sem_open("/my_named_semaphore", O_CREAT, 0644, 1);
+    if (mySemaphore == SEM_FAILED) {
+        std::cerr << "Error creating/opening semaphore\n";
+        return 1;
+    }
+
+    // ... Use the semaphore for synchronization ...
+
+    sem_close(mySemaphore);
+    sem_unlink("/my_named_semaphore");
+    return 0;
+}
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <iostream>
+
+int main() {
+    const char* pipeName = "/tmp/my_named_pipe";
+    mkfifo(pipeName, 0666);
+
+    int fd = open(pipeName, O_WRONLY);
+    if (fd == -1) {
+        std::cerr << "Error opening named pipe\n";
+        return 1;
+    }
+
+    // ... Write data to the pipe ...
+
+    close(fd);
+    unlink(pipeName);
+    return 0;
+}
+ 

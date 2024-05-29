@@ -1,0 +1,68 @@
+#include <fcntl.h>
+#include <termios.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdio.h>
+
+int main() {
+    int serial_port = open("/dev/ttyS0", O_RDWR);
+
+    if (serial_port < 0) {
+        printf("Error %i from open: %s\n", errno, strerror(errno));
+    }
+
+    struct termios tty;
+    memset(&tty, 0, sizeof tty);
+
+    if(tcgetattr(serial_port, &tty) != 0) {
+        printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
+    }
+
+    tty.c_cflag &= ~PARENB; // Clear parity bit
+    tty.c_cflag &= ~CSTOPB; // Clear stop field
+    tty.c_cflag &= ~CSIZE; // Clear all bits that set the data size
+    tty.c_cflag |= CS8; // 8 bits per byte
+    tty.c_cflag &= ~CRTSCTS; // Disable RTS/CTS hardware flow control
+    tty.c_cflag |= CREAD | CLOCAL; // Turn on READ & ignore ctrl lines
+
+    tty.c_lflag &= ~ICANON;
+    tty.c_lflag &= ~ECHO; // Disable echo
+    tty.c_lflag &= ~ECHOE; // Disable erasure
+    tty.c_lflag &= ~ECHONL; // Disable new-line echo
+    tty.c_lflag &= ~ISIG; // Disable interpretation of INTR, QUIT and SUSP
+
+    tty.c_iflag &= ~(IXON | IXOFF | IXANY); // Turn off s/w flow ctrl
+    tty.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL); // Disable any special handling of received bytes
+
+    tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes
+    tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
+
+    tty.c_cc[VTIME] = 10; // Wait for up to 1s, returning as soon as any data is received.
+    tty.c_cc[VMIN] = 0;
+
+    // Set in/out baud rate
+    cfsetispeed(&tty, B9600);
+    cfsetospeed(&tty, B9600);
+
+    if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
+        printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
+    }
+
+    char read_buf [256];
+    memset(&read_buf, '\0', sizeof(read_buf));
+    int num_bytes = read(serial_port, &read_buf, sizeof(read_buf));
+
+    if (num_bytes < 0) {
+        printf("Error reading: %s", strerror(errno));
+    }
+
+    printf("Read %i bytes. Received message: %s", num_bytes, read_buf);
+
+    close(serial_port);
+    return 0;
+}
+
+This is a basic example and may need to be adjusted based on your specific needs. Always remember to 
+handle errors appropriately in your code. This code does not include error handling for simplicity. 
+Also, replace “/dev/ttyS0” with the correct serial port for your system. Please note that you need 
+appropriate permissions to access the serial port on Linux.
